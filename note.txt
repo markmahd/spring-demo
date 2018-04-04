@@ -1,0 +1,139 @@
+反向控制
+	实现必须依赖抽象，而不是抽象依赖实现
+	例如：相同业务模块定义统一接口，根据实际业务实现该接口；而不是不同的业务写不同的实现方法，切换业务时需要改的痛惜就是整个项目
+	
+依赖注入的三种实现方式
+	1.接口实现：定义注入接口，通过实现接口的方式实现
+	2.set注入： set方法注入
+	3.构造器注入： 在构造器中加入参数
+	set注入和构造器注入比较常见
+	
+Bean中Singleton的使用
+	singleton模式：只有一个共享的实例存在，所有对Bean的请求都会返回一个相同的实例（包括物理地址完全一致）。
+	non-singleton模式：对Bean的每一次请求都是创建一个新Bean的实例，相当于new一个实例
+	
+Bean的属性
+	定义一个bean， id是这个bean的唯一标识， class指出这个bean的来源， singleton指出这个beab是否是单例模式， depends-on 指定这个bean的初始化前，强行初始化的bean 
+	1.可以直接在property标签中定义属性名称和属性值或者ref指定依赖
+	2.可以在property中定义属性名，在子标签value定义属性值或在子标签ref指定依赖
+	3.依赖也可以在property标签中的子标签bean来定义
+	4.null值设定<value>null</value> 或者<null/>标签
+	5.使用 depends-on时，依赖的bean必须先初始化
+
+Bean的初始化方式
+	1.在POJO中定义初始化方法init(),并在Bean中init-method属性值
+	
+	
+
+
+Bean的自动装配的5中方式
+	1.byName 通过POJO的属性名老装配
+	2.byType 通过POJO的属性类型装配（相同类型再按名字或者顺序装配）
+	3.constructor 通过构造器的参数装配
+	4.autpdetect 如果先赵找到constructor，就按constructor装配，没有constructor，就按byType装配
+	5.no 不使用自动装配
+	例如：
+	<bean id="HelloBeanInit2" class="com.spring.action.HelloBeanInit2" autowire="constructor">
+	
+	</bean>
+Bean依赖检查的4种模式
+	1.simple 对基本类型、字符串、集合进行依赖检查
+	2.object 对依赖的对象进行依赖检查
+	3.all 对所有的属性进行依赖检查
+	4.none 不进行依赖检查
+	例如：
+    <bean id="HelloBeanInit2" class="com.spring.action.HelloBeanInit2" autowire="autodetect" dependency-check="all">
+  
+    </bean>
+	  
+Bean集合的注入方式 
+  	代码为例：
+  	<bean id="唯一标识" class="POJO全路径">
+	    <property name="list">
+		    <list>
+			    <value>value1</value>
+			    <value>value2</value>
+			    <value>value3</value>
+			    ...
+		    </list>
+	    </property>
+	    <property name="set">
+		    <set>
+			    <value>value1</value>
+			    <value>value2</value>
+			    <value>value3</value>
+			    ...
+		    </set>
+	    </property>
+	     <property name="map">
+		    <map>
+			    <entry key="key1">
+			    	<value>value1</value>
+			    </entry>
+			    <entry key="key2">
+			    	<value>value2</value>
+			    </entry>
+			    <entry key="key3">
+			    	<value>value3</value>
+			    </entry>
+			    ...
+		    </map>
+	    </property>
+	     <property name="properties">
+		    <props>
+			    <prop key="key1">
+			    	value1
+			    </prop>
+			    <prop key="key2">
+			    	value2
+			    </prop>
+			    <prop key="key3">
+			    	value3
+			    </prop>
+			    ...
+		    </props>
+	    </property>
+	</bean>
+	
+管理Bean的3种方式
+	1.使用BeanWrapper管理Bean
+		// 通过Class.forName()获取类的一个实例
+		Object object = Class.forName("com.spring.action.BeanManagement").newInstance();
+		// 通过BeanWrapper来设定实体类的属性
+		BeanWrapper bw = new BeanWrapperImpl(object);
+		// 根据类变量设置变量的值
+		bw.setPropertyValue("msg", "beanWrapper");
+		bw.setPropertyValue("date", new Date());
+		// 把刚才设定的值根据变量名输出
+		System.out.println(bw.getPropertyValue("date") + "," + bw.getPropertyValue("msg"));
+		
+	2.使用BeanFactory管理Bean
+		// 通过ClassPathResource获取配置文档
+		ClassPathResource cpr = new ClassPathResource("fac-config.xml");
+		// 通过XMLBeanFactory来解析配置文档
+		XmlBeanFactory xbf = new XmlBeanFactory(cpr);
+		// 根据Id获取Bean
+		BeanManagement beanManagement = (BeanManagement) xbf.getBean("BeanManagement");
+		// 输出Bean在配置文档中设置的内容
+		System.out.println(beanManagement.getDate() + "," + beanManagement.getMsg());
+		
+	3.使用ApplicationContext管理Bean
+		// 通过ApplicationContext获取配置文档
+		ApplicationContext ac = new FileSystemXmlApplicationContext("WebContent/config.xml");
+		// 根据配置文档中的定义的Id 获取Bean
+		BeanManagement bm = (BeanManagement) ac.getBean("BeanManagement");
+		// 输出Bean在配置文档中设定的内容
+		System.out.println(bm.getDate() + "," + bm.getMsg());
+		
+	4.比较
+		常用BeanFactory和ApplicationContext来管理Bean
+		
+ApplicationContext更多应用
+	1、国际化支持
+		配置相同名称不同语言缩写的properties文件。
+	2、资源访问
+		I、CLASSPATH
+		II、绝对路径
+		III、相对路径
+	3、事件传递
+	
